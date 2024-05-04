@@ -144,6 +144,7 @@ class NeuralNet(object):
         # Estimating cross entropy loss from y_hat and y 
         data_loss = -np.mean(np.sum(np.multiply(y,np.log10(y_hat)),axis=1), axis=0)
         #data_loss = 0
+        #vvg
 
         # Estimating regularization loss from all layers
         reg_loss = 0.0
