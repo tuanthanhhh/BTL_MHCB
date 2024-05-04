@@ -87,7 +87,7 @@ class Layer(object):
            #w_grad = None 
         
         # [TODO 1.4] Implement L2 regularization on weights here
-
+        w_grad += self.reg * self.w
         #w_grad +=  0
         return w_grad, delta.copy()
 
@@ -142,10 +142,13 @@ class NeuralNet(object):
 
         # [TODO 1.3]
         # Estimating cross entropy loss from y_hat and y 
-        data_loss = 0
+        data_loss = -np.mean(np.sum(np.multiply(y,np.log10(y_hat)),axis=1), axis=0)
+        #data_loss = 0
 
         # Estimating regularization loss from all layers
         reg_loss = 0.0
+        for layer in self.layers:
+            reg_loss += 0.5 * self.reg * np.sum(layer.w * layer.w)
         data_loss += reg_loss
 
         return data_loss
