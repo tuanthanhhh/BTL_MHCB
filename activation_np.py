@@ -38,7 +38,7 @@ def reLU_grad(a):
     :param x: output of ReLU
     """
     #[TODO 1.1]
-    grad = np.where(x > 0, 1, 0)
+    grad = np.where(a > 0, 1, 0)
     return grad
 
 def tanh(x):

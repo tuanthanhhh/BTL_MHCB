@@ -142,9 +142,10 @@ class NeuralNet(object):
 
         # [TODO 1.3]
         # Estimating cross entropy loss from y_hat and y 
-        data_loss = -np.mean(np.sum(np.multiply(y,np.log10(y_hat)),axis=1), axis=0)
+        print(y.shape)
+        print(y_hat.shape)
+        data_loss = -np.mean(np.sum(np.multiply(y,np.log(y_hat)),axis=1))
         #data_loss = 0
-        #vvg
 
         # Estimating regularization loss from all layers
         reg_loss = 0.0
@@ -162,14 +163,16 @@ class NeuralNet(object):
         """
         
         # [TODO 1.5] Compute delta factor from the output
-        delta = 0
+        y_hat = all_x[-1]
+        delta = y - y_hat
         delta /= y.shape[0]
         
         # [TODO 1.5] Compute gradient of the loss function with respect to w of softmax layer, use delta from the output
-        grad_last = 0
+        grad_last = np.dot(delta.T, all_x[-2])
 
         grad_list = []
         grad_list.append(grad_last)
+        delta_prev = delta
         
         for i in range(len(self.layers) - 1)[::-1]:
             prev_layer = self.layers[i+1]
@@ -178,7 +181,7 @@ class NeuralNet(object):
 	    # [TODO 1.5] Compute delta_dot_w_prev factor for previous layer (in backpropagation direction)
 	    # delta_prev: delta^(l+1), in the start of this loop, delta_prev is also delta^(L) or delta_last
 	    # delta_dot_w_prev: delta^(l+1) dot product with w^(l+1)T
-            delta_dot_w_prev = 0
+            delta_dot_w_prev = np.dot(delta_prev, prev_layer.w.T)
 	    # Use delta_dot_w_prev to compute delta factor for the next layer (in backpropagation direction)
             grad_w, delta_prev = layer.backward(x, delta_dot_w_prev)
             grad_list.append(grad_w.copy())
@@ -196,7 +199,7 @@ class NeuralNet(object):
         for i in range(len(self.layers)):
             layer = self.layers[i]
             grad = grad_list[i]
-            layer.w = layer.w - learning_rate * grad
+            layer.w = layer.w - (learning_rate * grad)
     
     
     def update_weight_momentum(self, grad_list, learning_rate, momentum_rate):
@@ -275,6 +278,32 @@ def minibatch_train(net, train_x, train_y, cfg):
     :param cfg: Config object
     """
     # [TODO 1.6] Implement mini-batch training
+    num_epochs = cfg.num_epoch
+    batch_size = cfg.batch_size
+    learning_rate = cfg.learning_rate
+    momentum_rate = cfg.momentum_rate
+    
+    num_batches = len(train_x) // batch_size
+    
+    for epoch in range(num_epochs):
+        for batch in range(num_batches):
+            start_idx = batch * batch_size
+            end_idx = start_idx + batch_size
+            
+            batch_x = train_x[start_idx:end_idx]
+            batch_y = train_y[start_idx:end_idx]
+            
+            # Forward pass
+            y_hat = net.forward(batch_x)
+            
+            # Compute loss
+            loss = net.compute_loss(batch_y, y_hat)
+            
+            # Backward pass
+            grads = net.backward(batch_y, net.all_x)
+            
+            # Update weights
+            net.update_weight(grads, learning_rate, momentum_rate)
     pass
     
 
@@ -318,6 +347,8 @@ def bat_classification():
     # Load data from file
     # Make sure that bat.dat is in data/
     train_x, train_y, test_x, test_y = get_bat_data()
+    print(train_x)
+    print(train_y)
     train_x, _, test_x = normalize(train_x, train_x, test_x)    
 
     test_y  = test_y.flatten()
@@ -349,10 +380,11 @@ def bat_classification():
     #batch_train(net, train_x, train_y, cfg)
 
     #Minibatch training - training dataset using Minibatch approach
-    minibatch_train(net, train_x, train_y, cfg)
+    batch_train(net, train_x, train_y, cfg)
     
     y_hat = net.forward(test_x)[-1]
     test(y_hat, test_y)
+    visualize_point(train_x, train_y, y_hat)
 
 
 def mnist_classification():
@@ -397,6 +429,7 @@ if __name__ == '__main__':
 
     plt.ion()
     bat_classification()
+    
     mnist_classification()
 
     pdb.set_trace()
