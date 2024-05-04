@@ -39,18 +39,23 @@ class Layer(object):
         :param x: input
         """
         # [TODO 1.2]
-        result = None
+        z = np.dot(x,self.w)
+        result = z
+        #result = None
         
         # Compute different types of activation
         if (self.activation == 'sigmoid'):
-            result = None
+            result = sigmoid(z)
+            #result = None
         elif (self.activation == 'relu'):
-            result = None
+            result = reLU(z)
+            #result = None
         elif (self.activation == 'tanh'):
-            result = None
+            result = tanh(z)
+            #result = None
         elif (self.activation == 'softmax'):
-            result = None
-
+            result = softmax(z)
+            #result = None
         self.output = result
         return result
 
@@ -62,17 +67,28 @@ class Layer(object):
         :param delta_dot_w_prev: delta^(l+1) dot product with w^(l+1)T, computed from the next layer (in feedforward direction) or previous layer (in backpropagation direction)
         """
         # [TODO 1.2]
+        z = np.dot(x,self.w) 
         if(self.activation == 'sigmoid'):
-            w_grad = None 
+           z = sigmoid(z)
+           delta = delta_dot_w_prev * (sigmoid_grad(z))
+           w_grad = np.transpose(x).dot(delta)
+           # w_grad = None 
         
         elif(self.activation == 'tanh'):
-           w_grad = None 
+            z = tanh(z)
+            delta = delta_dot_w_prev * (tanh_grad(z))
+            w_grad = np.transpose(x).dot(delta)
+           #w_grad = None 
 
         elif(self.activation == 'relu'):
-           w_grad = None 
-
+            z = reLU(z)
+            delta = delta_dot_w_prev * (reLU_grad(z))
+            w_grad = np.transpose(x).dot(delta)
+           #w_grad = None 
+        
         # [TODO 1.4] Implement L2 regularization on weights here
-        w_grad +=  0
+
+        #w_grad +=  0
         return w_grad, delta.copy()
 
 

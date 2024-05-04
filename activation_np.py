@@ -8,7 +8,7 @@ def sigmoid(x):
     :param x: input
     """
     #[TODO 1.1]
-    return 1 / (1 + np.exp(-x))
+    return 1/(1+np.exp(-x)) 
 
 
 def sigmoid_grad(a):
@@ -28,7 +28,7 @@ def reLU(x):
     :param x: input
     """
     #[TODO 1.1]
-    return np.max(0,x) # not checked
+    return np.maximum(0,x)
 
 
 def reLU_grad(a):
@@ -38,9 +38,8 @@ def reLU_grad(a):
     :param x: output of ReLU
     """
     #[TODO 1.1]
-    grad = np.where(a>=0,1,0)
+    grad = np.where(x > 0, 1, 0)
     return grad
-
 
 def tanh(x):
     """tanh
@@ -49,7 +48,7 @@ def tanh(x):
     :param x: input
     """
     #[TODO 1.1]
-    return None
+    return np.tanh(x)
 
 
 def tanh_grad(a):
@@ -59,21 +58,18 @@ def tanh_grad(a):
     :param a: output of tanh
     """
     #[TODO 1.1]
-    return None
+    return 1 - np.tanh(a)**2
 
 
 def softmax(x):
     """softmax
     TODO:
     Softmax function.
-    :param x: input size: data demension x num of class // x <=> z
+    :param x: input
     """
-    # each row <-> a sample
-    exp_x = np.exp(x)
-    sum_row = np.sum(exp_x, axis = 1, keepdims = True) #keepdims = true: sau khi sum xong num of dim not change 
-    for i in range(len(sum_row)):      
-        exp_x[i,:] = exp_x[i,:]/sum_row[i]
-    return exp_x
+
+    output = np.exp(x)
+    return output / np.sum(output)
 
 
 def softmax_minus_max(x):
@@ -82,9 +78,7 @@ def softmax_minus_max(x):
     Stable softmax function.
     :param x: input
     """
-    x = x.astype(float)  # float
-    max_row = np.max(x, axis = 1)
-    for i in range(len(max_row)):      
-        x[i,:] = np.exp( x[i,:] - max_row[i])
-        x[i,:] = x[i,:]/np.sum(x[i,:])
-    return x
+    max_x = np.max(x)
+    exp_x = np.exp(x - max_x)  # Subtract max_x for numerical stability
+    #output = None
+    return exp_x/ np.sum(exp_x)
